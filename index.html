@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bio Study — Systems</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e0c;
+    --bg2: #1a1916;
+    --bg3: #242320;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #f0ede8;
+    --muted: #8a8680;
+    --accent1: #e8c547; /* amber */
+    --accent2: #5cb8a0; /* teal */
+    --accent3: #e06b6b; /* coral */
+    --accent4: #9b8fe8; /* purple */
+    --accent5: #e8956b; /* orange */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  /* HEADER */
+  header { padding: 2rem 1.5rem 1rem; border-bottom: 0.5px solid var(--border); }
+  .header-inner { max-width: 780px; margin: 0 auto; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .title { font-family: 'Syne', sans-serif; font-size: clamp(1.6rem, 5vw, 2.4rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+  .title span { color: var(--accent1); }
+  .subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .progress-bar { width: 120px; height: 4px; background: var(--bg3); border-radius: 2px; }
+  .progress-fill { height: 100%; background: var(--accent1); border-radius: 2px; transition: width 0.4s; }
+
+  /* NAV */
+  nav { padding: 0.75rem 1.5rem; border-bottom: 0.5px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+  nav::-webkit-scrollbar { display: none; }
+  .nav-inner { max-width: 780px; margin: 0 auto; display: flex; gap: 6px; }
+  .nav-btn { background: none; border: 0.5px solid var(--border); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 99px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+  .nav-btn:hover { border-color: var(--border2); color: var(--text); }
+  .nav-btn.active { border-color: var(--accent1); color: var(--accent1); background: rgba(232,197,71,0.08); }
+
+  /* MAIN */
+  main { max-width: 780px; margin: 0 auto; padding: 1.5rem; }
+
+  /* SECTION */
+  .section { display: none; }
+  .section.active { display: block; }
+  .section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.25rem; }
+
+  /* CARDS GRID */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; opacity: 0; transition: opacity 0.2s; }
+  .card:hover { border-color: var(--border2); background: var(--bg3); }
+  .card.open { border-color: var(--border2); background: var(--bg3); }
+  .card.open::before { opacity: 1; }
+  .card-emoji { font-size: 22px; margin-bottom: 8px; line-height: 1; }
+  .card-term { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .card-analogy { font-size: 12px; color: var(--muted); margin-bottom: 0; }
+  .card-body { display: none; margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--border); font-size: 13px; color: #c8c4bd; line-height: 1.65; }
+  .card.open .card-body { display: block; }
+  .tag { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 99px; margin-bottom: 6px; letter-spacing: 0.03em; }
+
+  /* COLOR ACCENTS PER SECTION */
+  .s1 .card::before { background: var(--accent1); }
+  .s1 .tag { background: rgba(232,197,71,0.12); color: var(--accent1); }
+  .s2 .card::before { background: var(--accent5); }
+  .s2 .tag { background: rgba(232,149,107,0.12); color: var(--accent5); }
+  .s3 .card::before { background: var(--accent2); }
+  .s3 .tag { background: rgba(92,184,160,0.12); color: var(--accent2); }
+  .s4 .card::before { background: var(--accent3); }
+  .s4 .tag { background: rgba(224,107,107,0.12); color: var(--accent3); }
+  .s5 .card::before { background: var(--accent4); }
+  .s5 .tag { background: rgba(155,143,232,0.12); color: var(--accent4); }
+
+  /* DISEASE CARDS */
+  .disease-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+  .d-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 12px; padding: 0.85rem 1rem; }
+  .d-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .d-type { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .d-desc { font-size: 12px; color: #a09c96; line-height: 1.55; }
+
+  /* QUIZ MODE */
+  .quiz-wrap { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 16px; padding: 1.5rem; }
+  .quiz-question { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; line-height: 1.4; }
+  .quiz-options { display: grid; gap: 8px; }
+  .quiz-opt { background: var(--bg3); border: 0.5px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; cursor: pointer; font-size: 13px; color: var(--text); text-align: left; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--border2); background: var(--bg); }
+  .quiz-opt.correct { border-color: var(--accent2); background: rgba(92,184,160,0.1); color: var(--accent2); }
+  .quiz-opt.wrong { border-color: var(--accent3); background: rgba(224,107,107,0.1); color: var(--accent3); }
+  .quiz-opt:disabled { cursor: default; }
+  .quiz-feedback { font-size: 13px; color: var(--muted); margin-top: 1rem; line-height: 1.6; min-height: 40px; }
+  .quiz-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 1.25rem; }
+  .quiz-count { font-size: 12px; color: var(--muted); }
+  .btn { background: none; border: 0.5px solid var(--border2); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 18px; border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+  .btn:hover { background: var(--bg3); }
+  .btn.primary { border-color: var(--accent1); color: var(--accent1); }
+  .btn.primary:hover { background: rgba(232,197,71,0.08); }
+  .score-box { text-align: center; padding: 2rem; }
+  .score-num { font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800; color: var(--accent1); }
+  .score-label { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  /* SECTION HEADER */
+  .section-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 8px; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; }
+  .expand-all { background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .expand-all:hover { color: var(--text); }
+  hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="title">Bio <span>Exam</span> Prep</div>
+      <div class="subtitle">Units 3.1 – 3.5 · Bilingual study guide with analogies</div>
+    </div>
+    <div class="progress-bar-wrap">
+      <span id="prog-label">0 / 0 seen</span>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="showSection('s1')">3.1 Skeletal</button>
+    <button class="nav-btn" onclick="showSection('s2')">3.2 Muscular</button>
+    <button class="nav-btn" onclick="showSection('s3')">3.3 Integumentary</button>
+    <button class="nav-btn" onclick="showSection('s4')">3.4 Circulatory</button>
+    <button class="nav-btn" onclick="showSection('s5')">3.5 Immune</button>
+    <button class="nav-btn" onclick="showSection('quiz')">⚡ Quiz</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- 3.1 SKELETAL -->
+<div class="section s1 active" id="s1">
+  <div class="section-label">3.1 · Skeletal System</div>
+  <div class="section-h">
+    <div class="section-title">Structure & Function</div>
+    <button class="expand-all" onclick="toggleAll('s1')">expand all</button>
+  </div>
+  <div class="cards" id="s1-cards">
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Bone</div>
+      <div class="card-emoji">🏗️</div>
+      <div class="card-term">Skeleton</div>
+      <div class="card-analogy">Like the steel frame of a building</div>
+      <div class="card-body">Provides support, protects organs, allows movement, produces blood cells (in red bone marrow), and stores minerals like calcium and phosphorus.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Bone</div>
+      <div class="card-emoji">🔴</div>
+      <div class="card-term">Red Bone Marrow</div>
+      <div class="card-analogy">Like IMSS — produces all the "workers" (blood cells)</div>
+      <div class="card-body">Found in spongy bone. Produces red blood cells, white blood cells, and platelets through a process called hematopoiesis.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Bone</div>
+      <div class="card-emoji">🟡</div>
+      <div class="card-term">Yellow Bone Marrow</div>
+      <div class="card-analogy">Like a bodega — stores fat reserves</div>
+      <div class="card-body">Stores fat (adipose tissue). Found in the hollow shaft (diaphysis) of long bones. Can convert to red marrow in emergencies.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Tissue</div>
+      <div class="card-emoji">🩹</div>
+      <div class="card-term">Periosteum</div>
+      <div class="card-analogy">Like the skin of the bone — outermost protective layer</div>
+      <div class="card-body">Dense connective tissue membrane covering bone surfaces. Contains blood vessels, nerves, and osteoblasts for growth and repair.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Cell</div>
+      <div class="card-emoji">🔨</div>
+      <div class="card-term">Osteoblast</div>
+      <div class="card-analogy">The construction workers — build bone</div>
+      <div class="card-body">Cells that synthesize and deposit bone matrix. They become osteocytes once surrounded by matrix. Active during growth and fracture repair.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Cell</div>
+      <div class="card-emoji">🏠</div>
+      <div class="card-term">Osteocyte</div>
+      <div class="card-analogy">The residents — live inside the finished bone</div>
+      <div class="card-body">Mature bone cells trapped in lacunae (small cavities). Maintain the bone matrix and communicate via small channels called canaliculi.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Cell</div>
+      <div class="card-emoji">💥</div>
+      <div class="card-term">Osteoclast</div>
+      <div class="card-analogy">The demolition crew — break down bone</div>
+      <div class="card-body">Large multinucleated cells that resorb (break down) bone tissue. Crucial for remodeling and releasing calcium into the bloodstream.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Joint</div>
+      <div class="card-emoji">🔗</div>
+      <div class="card-term">Cartilage</div>
+      <div class="card-analogy">Like the rubber pads in a car's suspension</div>
+      <div class="card-body">Flexible connective tissue that cushions joints, supports structures (nose, ears), and forms the fetal skeleton before ossification. Avascular — no blood supply.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Joint</div>
+      <div class="card-emoji">🔩</div>
+      <div class="card-term">Ligament</div>
+      <div class="card-analogy">Like a bolt connecting two metal beams — bone to bone</div>
+      <div class="card-body">Dense connective tissue that connects bone to bone at joints. Stabilizes joints and prevents excessive movement.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Joint</div>
+      <div class="card-emoji">💧</div>
+      <div class="card-term">Synovial Fluid</div>
+      <div class="card-analogy">Like the oil in an engine — reduces friction</div>
+      <div class="card-body">Viscous fluid found in synovial joints. Lubricates cartilage, reduces friction, absorbs shock, and nourishes cartilage cells.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-h"><div class="section-title">Diseases & Conditions</div></div>
+  <div class="disease-grid">
+    <div class="d-card"><div class="d-name">Osteoporosis</div><div class="d-type">Metabolic disease</div><div class="d-desc">Loss of bone density — more osteoclast than osteoblast activity. Bones become brittle and fracture easily. Common in post-menopausal women.</div></div>
+    <div class="d-card"><div class="d-name">Osteoarthritis</div><div class="d-type">Degenerative</div><div class="d-desc">Cartilage between joints wears down over time. Causes pain, stiffness, and reduced range of motion. Most common in knees and hips.</div></div>
+    <div class="d-card"><div class="d-name">Rheumatoid Arthritis</div><div class="d-type">Autoimmune</div><div class="d-desc">Immune system attacks the synovial membrane. Causes joint inflammation, pain, and eventual bone destruction. Symmetric — affects both sides.</div></div>
+    <div class="d-card"><div class="d-name">Fractures</div><div class="d-type">Trauma</div><div class="d-desc">Break in bone continuity. Types: simple (clean break), compound (pierces skin), stress (repeated microtrauma), comminuted (shattered).</div></div>
+    <div class="d-card"><div class="d-name">Scoliosis</div><div class="d-type">Structural</div><div class="d-desc">Lateral (sideways) curvature of the spine. Can be idiopathic, congenital, or neuromuscular. Detected by uneven shoulders/hips.</div></div>
+    <div class="d-card"><div class="d-name">Osteosarcoma</div><div class="d-type">Cancer</div><div class="d-desc">Malignant bone tumor. Most common in teenagers during growth spurts. Typically affects long bones (femur, tibia).</div></div>
+  </div>
+</div>
+
+<!-- 3.2 MUSCULAR -->
+<div class="section s2" id="s2">
+  <div class="section-label">3.2 · Muscular System</div>
+  <div class="section-h">
+    <div class="section-title">Structure & Function</div>
+    <button class="expand-all" onclick="toggleAll('s2')">expand all</button>
+  </div>
+  <div class="cards" id="s2-cards">
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Type</div>
+      <div class="card-emoji">💪</div>
+      <div class="card-term">Skeletal Muscle</div>
+      <div class="card-analogy">Like a manually operated crane — voluntary control</div>
+      <div class="card-body">Striated (striped), voluntary muscle attached to bones via tendons. Responsible for body movement and posture. Contains actin and myosin filaments.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Type</div>
+      <div class="card-emoji">❤️</div>
+      <div class="card-term">Cardiac Muscle</div>
+      <div class="card-analogy">Like a diesel engine — runs 24/7 without stopping</div>
+      <div class="card-body">Striated, involuntary muscle found only in the heart. Has intercalated discs for synchronized contraction. Self-stimulating (automaticity).</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Type</div>
+      <div class="card-emoji">🌀</div>
+      <div class="card-term">Smooth Muscle</div>
+      <div class="card-analogy">Like the automatic valve in a pipe — you don't control it</div>
+      <div class="card-body">Non-striated, involuntary muscle in organs and vessels (stomach, intestines, blood vessels). Controls digestion, circulation, and other internal functions.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Mechanism</div>
+      <div class="card-emoji">🪝</div>
+      <div class="card-term">Sliding Filament Theory</div>
+      <div class="card-analogy">Like rowing a boat — oars (myosin) pull the water (actin)</div>
+      <div class="card-body">Myosin heads attach to actin filaments and pull them toward the center of the sarcomere. ATP provides energy. Requires Ca²⁺ ions to expose binding sites on actin.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Structure</div>
+      <div class="card-emoji">📦</div>
+      <div class="card-term">Sarcomere</div>
+      <div class="card-analogy">The basic unit — like one brick in a wall</div>
+      <div class="card-body">The functional unit of skeletal and cardiac muscle. Bounded by Z-lines. Contains thick filaments (myosin) and thin filaments (actin). Shortens during contraction.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Connection</div>
+      <div class="card-emoji">🪢</div>
+      <div class="card-term">Tendon</div>
+      <div class="card-analogy">Like the rope connecting the crane to the load — muscle to bone</div>
+      <div class="card-body">Dense connective tissue connecting muscle to bone. Transmits the force of muscular contraction to create movement.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Pairs</div>
+      <div class="card-emoji">⬆️⬇️</div>
+      <div class="card-term">Antagonistic Muscles</div>
+      <div class="card-analogy">Like a seesaw — when one side goes up, the other goes down</div>
+      <div class="card-body">Muscles that work in opposing pairs. When agonist contracts (bicep), antagonist relaxes (tricep) and vice versa. Example: biceps/triceps, hamstrings/quadriceps.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Signal</div>
+      <div class="card-emoji">⚡</div>
+      <div class="card-term">Neuromuscular Junction</div>
+      <div class="card-analogy">Like the electric outlet — where nerve signal meets muscle</div>
+      <div class="card-body">Synapse between a motor neuron and muscle fiber. Acetylcholine (ACh) is released, binds to receptors, triggers action potential → muscle contracts.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-h"><div class="section-title">Diseases & Conditions</div></div>
+  <div class="disease-grid">
+    <div class="d-card"><div class="d-name">Muscular Dystrophy</div><div class="d-type">Genetic</div><div class="d-desc">Group of diseases causing progressive muscle weakness. Duchenne MD (most common) affects boys — mutation in dystrophin gene. No cure, only management.</div></div>
+    <div class="d-card"><div class="d-name">Myasthenia Gravis</div><div class="d-type">Autoimmune</div><div class="d-desc">Antibodies block ACh receptors at neuromuscular junction. Causes muscle weakness and fatigue, worse with activity. Droopy eyelids (ptosis) is classic sign.</div></div>
+    <div class="d-card"><div class="d-name">Tendinitis</div><div class="d-type">Inflammation</div><div class="d-desc">Inflammation of a tendon due to overuse or injury. Common in shoulder (rotator cuff), elbow (tennis elbow), and Achilles tendon.</div></div>
+    <div class="d-card"><div class="d-name">Muscle Cramp</div><div class="d-type">Functional</div><div class="d-desc">Sudden, involuntary contraction of a muscle. Caused by dehydration, electrolyte imbalance (low Na⁺, K⁺, Mg²⁺), or nerve compression.</div></div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-h"><div class="section-title">Bacterial Infections of the Muscular System</div></div>
+  <div class="disease-grid">
+    <div class="d-card"><div class="d-name">Tetanus</div><div class="d-type">Clostridium tetani</div><div class="d-desc">Bacteria releases toxin that blocks inhibitory signals → continuous muscle contraction ("lockjaw"). Prevented by vaccine. Enters through wounds.</div></div>
+    <div class="d-card"><div class="d-name">Necrotizing Fasciitis</div><div class="d-type">Group A Streptococcus</div><div class="d-desc">"Flesh-eating bacteria." Rapidly destroys fascia and muscle tissue. Medical emergency requiring surgical debridement and IV antibiotics.</div></div>
+    <div class="d-card"><div class="d-name">Botulism</div><div class="d-type">Clostridium botulinum</div><div class="d-desc">Toxin blocks ACh release at neuromuscular junction → flaccid paralysis. Opposite of tetanus (flaccid vs. spastic). Source: improperly canned foods.</div></div>
+  </div>
+</div>
+
+<!-- 3.3 INTEGUMENTARY -->
+<div class="section s3" id="s3">
+  <div class="section-label">3.3 · Integumentary System</div>
+  <div class="section-h">
+    <div class="section-title">Structure & Function</div>
+    <button class="expand-all" onclick="toggleAll('s3')">expand all</button>
+  </div>
+  <div class="cards" id="s3-cards">
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Layer</div>
+      <div class="card-emoji">🧱</div>
+      <div class="card-term">Epidermis</div>
+      <div class="card-analogy">Like the paint and plaster on a wall — outermost protective coat</div>
+      <div class="card-body">Outermost layer. Avascular (no blood vessels). Made of stratified squamous epithelium. Cells produced in stratum basale, die and fill with keratin as they move up to stratum corneum.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Layer</div>
+      <div class="card-emoji">🔌</div>
+      <div class="card-term">Dermis</div>
+      <div class="card-analogy">Like the building's infrastructure — wiring, plumbing, sensors</div>
+      <div class="card-body">Middle layer. Contains blood vessels, nerves, hair follicles, sweat glands, and sebaceous glands. Made of collagen and elastin for strength and flexibility.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Layer</div>
+      <div class="card-emoji">🛢️</div>
+      <div class="card-term">Hypodermis (Subcutis)</div>
+      <div class="card-analogy">Like the insulation under a floor — fat storage and cushioning</div>
+      <div class="card-body">Deepest layer. Made mainly of adipose tissue. Insulates the body, stores energy, cushions organs, and anchors skin to underlying muscle/bone.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Pigment</div>
+      <div class="card-emoji">🎨</div>
+      <div class="card-term">Melanocytes</div>
+      <div class="card-analogy">Like the painters — they decide the color of the skin</div>
+      <div class="card-body">Cells in the stratum basale that produce melanin. Melanin absorbs UV radiation, protecting DNA. Everyone has the same number — skin color depends on melanin production rate.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Gland</div>
+      <div class="card-emoji">💧</div>
+      <div class="card-term">Sweat Glands (Eccrine)</div>
+      <div class="card-analogy">Like the AC system — cools the body down</div>
+      <div class="card-body">Produce sweat (mostly water + NaCl). Distributed across body. Evaporation cools the skin. Also helps excrete small amounts of urea and lactic acid.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Gland</div>
+      <div class="card-emoji">🧴</div>
+      <div class="card-term">Sebaceous Glands</div>
+      <div class="card-analogy">Like the waterproofing coating on a jacket</div>
+      <div class="card-body">Produce sebum (oil) that lubricates and waterproofs skin and hair. Attached to hair follicles. Overactivity → acne; blocked duct → cyst.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Function</div>
+      <div class="card-emoji">☀️</div>
+      <div class="card-term">Vitamin D Synthesis</div>
+      <div class="card-analogy">Like a solar panel — converts sunlight into something useful</div>
+      <div class="card-body">UV radiation converts 7-dehydrocholesterol in skin to Vitamin D3. Essential for calcium absorption and bone health. Liver and kidneys further activate it.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Function</div>
+      <div class="card-emoji">🛡️</div>
+      <div class="card-term">Skin as Barrier</div>
+      <div class="card-analogy">Like a security wall — keeps pathogens, chemicals, and UV out</div>
+      <div class="card-body">Physical barrier against pathogens. Slightly acidic pH (4.5–5.5) inhibits bacterial growth. Keratin prevents water loss and chemical penetration.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-h"><div class="section-title">Diseases</div></div>
+  <div class="disease-grid">
+    <div class="d-card"><div class="d-name">Melanoma</div><div class="d-type">Skin cancer</div><div class="d-desc">Malignant tumor of melanocytes. Most dangerous skin cancer. Check with ABCDE rule: Asymmetry, Border, Color, Diameter, Evolving.</div></div>
+    <div class="d-card"><div class="d-name">Psoriasis</div><div class="d-type">Autoimmune</div><div class="d-desc">Immune system speeds up skin cell turnover. Cells accumulate faster than they shed → thick, scaly plaques. Chronic, with flare-ups and remissions.</div></div>
+    <div class="d-card"><div class="d-name">Eczema (Atopic Dermatitis)</div><div class="d-type">Inflammatory</div><div class="d-desc">Skin barrier dysfunction + immune overreaction. Causes itchy, inflamed, cracked skin. Often linked to asthma and allergies.</div></div>
+    <div class="d-card"><div class="d-name">Acne Vulgaris</div><div class="d-type">Follicular</div><div class="d-desc">Sebaceous gland overproduction + Cutibacterium acnes bacteria. Blocked follicles → whiteheads, blackheads, cysts. Common in adolescence.</div></div>
+    <div class="d-card"><div class="d-name">Burns (1°/2°/3°)</div><div class="d-type">Trauma</div><div class="d-desc">1st° — epidermis only (redness). 2nd° — epidermis + dermis (blisters). 3rd° — all layers (painless, white/black, requires skin graft).</div></div>
+  </div>
+</div>
+
+<!-- 3.4 CIRCULATORY -->
+<div class="section s4" id="s4">
+  <div class="section-label">3.4 · Circulatory System</div>
+  <div class="section-h">
+    <div class="section-title">Structure & Function</div>
+    <button class="expand-all" onclick="toggleAll('s4')">expand all</button>
+  </div>
+  <div class="cards" id="s4-cards">
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Organ</div>
+      <div class="card-emoji">❤️</div>
+      <div class="card-term">Heart</div>
+      <div class="card-analogy">Like a water pump in a building — keeps fluid moving through the whole system</div>
+      <div class="card-body">4-chambered muscular organ. Right side pumps deoxygenated blood to lungs (pulmonary circuit). Left side pumps oxygenated blood to body (systemic circuit). ~100,000 beats/day.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Vessel</div>
+      <div class="card-emoji">🚀</div>
+      <div class="card-term">Arteries</div>
+      <div class="card-analogy">Like the main water pipes under pressure — carry blood AWAY from heart</div>
+      <div class="card-body">Thick, elastic walls to withstand high pressure. Carry oxygenated blood (except pulmonary artery). No valves. The aorta is the largest artery.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Vessel</div>
+      <div class="card-emoji">🏠</div>
+      <div class="card-term">Veins</div>
+      <div class="card-analogy">Like the drain pipes — carry blood BACK to the heart (low pressure)</div>
+      <div class="card-body">Thin walls, large lumen, have valves to prevent backflow. Carry deoxygenated blood (except pulmonary vein). Venous return aided by muscle contractions and breathing.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Vessel</div>
+      <div class="card-emoji">🕸️</div>
+      <div class="card-term">Capillaries</div>
+      <div class="card-analogy">Like the tiny drip irrigation channels — where the actual exchange happens</div>
+      <div class="card-body">One cell thick (endothelium only). Exchange of O₂, CO₂, nutrients, and waste between blood and tissues. So narrow (~8 µm) that RBCs pass single-file.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Blood</div>
+      <div class="card-emoji">🔴</div>
+      <div class="card-term">Red Blood Cells (Erythrocytes)</div>
+      <div class="card-analogy">Like delivery trucks — carry oxygen using hemoglobin</div>
+      <div class="card-body">Biconcave, anucleate (no nucleus in mature form). Contain hemoglobin which binds O₂. Life span ~120 days. Produced in red bone marrow.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Blood</div>
+      <div class="card-emoji">🩹</div>
+      <div class="card-term">Platelets (Thrombocytes)</div>
+      <div class="card-analogy">Like the repair crew — seal leaks (clot blood)</div>
+      <div class="card-body">Cell fragments from megakaryocytes. Aggregate at wound sites, release clotting factors, form a temporary plug. Work with fibrin to form final clot.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Cardiac</div>
+      <div class="card-emoji">⚡</div>
+      <div class="card-term">Cardiac Conduction</div>
+      <div class="card-analogy">Like an electrical circuit — SA node is the fuse box</div>
+      <div class="card-body">SA node → AV node → Bundle of His → Purkinje fibers. SA node sets heart rate (pacemaker). Signal triggers synchronized contraction of atria then ventricles.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Pressure</div>
+      <div class="card-emoji">📊</div>
+      <div class="card-term">Blood Pressure</div>
+      <div class="card-analogy">Like water pressure in a hose — systolic (squeeze) / diastolic (relax)</div>
+      <div class="card-body">Systolic: pressure during ventricular contraction. Diastolic: pressure during relaxation. Normal: 120/80 mmHg. Measured in arteries. Regulated by kidneys, hormones, heart rate.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-h"><div class="section-title">Diseases</div></div>
+  <div class="disease-grid">
+    <div class="d-card"><div class="d-name">Hypertension</div><div class="d-type">Chronic</div><div class="d-desc">Persistently high blood pressure (>130/80). "Silent killer" — often asymptomatic. Damages arteries, heart, kidneys, and brain over time. Major risk factor for stroke and MI.</div></div>
+    <div class="d-card"><div class="d-name">Atherosclerosis</div><div class="d-type">Vascular</div><div class="d-desc">Build-up of plaques (cholesterol, fat, calcium) inside arterial walls. Narrows arteries, reduces blood flow. Can cause heart attack (coronary) or stroke (cerebral).</div></div>
+    <div class="d-card"><div class="d-name">Myocardial Infarction</div><div class="d-type">Emergency</div><div class="d-desc">Heart attack. Coronary artery blocked (usually by clot on plaque) → heart muscle dies. Symptoms: chest pain, left arm pain, sweating, nausea. Time-critical treatment.</div></div>
+    <div class="d-card"><div class="d-name">Anemia</div><div class="d-type">Blood disorder</div><div class="d-desc">Low hemoglobin or RBC count → insufficient O₂ delivery. Types: iron-deficiency (most common), sickle cell (genetic), aplastic (bone marrow failure).</div></div>
+    <div class="d-card"><div class="d-name">Leukemia</div><div class="d-type">Cancer</div><div class="d-desc">Cancer of blood-forming cells. Overproduction of abnormal WBCs that crowd out normal cells. Types: acute/chronic, lymphocytic/myeloid.</div></div>
+    <div class="d-card"><div class="d-name">Heart Failure</div><div class="d-type">Chronic</div><div class="d-desc">Heart can't pump blood efficiently. Can be left-sided (fluid in lungs → dyspnea) or right-sided (fluid in legs → edema). Managed but not cured.</div></div>
+  </div>
+</div>
+
+<!-- 3.5 IMMUNE -->
+<div class="section s5" id="s5">
+  <div class="section-label">3.5 · Immune System</div>
+  <div class="section-h">
+    <div class="section-title">Innate vs Adaptive</div>
+    <button class="expand-all" onclick="toggleAll('s5')">expand all</button>
+  </div>
+  <div class="cards" id="s5-cards">
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Innate</div>
+      <div class="card-emoji">🛡️</div>
+      <div class="card-term">Innate Immune System</div>
+      <div class="card-analogy">Like a guarda de seguridad — no discrimina, detiene a todos los sospechosos</div>
+      <div class="card-body">First line of defense. Non-specific (attacks anything foreign). Responds within minutes-hours. Includes physical barriers (skin, mucus), inflammation, fever, phagocytes (neutrophils, macrophages), and NK cells.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Innate</div>
+      <div class="card-emoji">🦠</div>
+      <div class="card-term">Phagocytosis</div>
+      <div class="card-analogy">Like Pac-Man — macrophages eat and destroy pathogens</div>
+      <div class="card-body">Macrophages and neutrophils engulf pathogens via phagocytosis. Pathogen is enclosed in a phagosome, fused with lysosomes, and destroyed. Macrophages also present antigens to T cells.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Innate</div>
+      <div class="card-emoji">🔥</div>
+      <div class="card-term">Inflammation</div>
+      <div class="card-analogy">Like the military setting up a perimeter — hot, swollen, redness = troops arriving</div>
+      <div class="card-body">4 signs: redness (vasodilation), heat, swelling (fluid leaks out), pain. Caused by histamine, prostaglandins. Recruits immune cells to the site of infection or injury.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Adaptive</div>
+      <div class="card-emoji">🎯</div>
+      <div class="card-term">Adaptive Immune System</div>
+      <div class="card-analogy">Like a hit squad — trained to target one specific enemy</div>
+      <div class="card-body">Specific defense against particular antigens. Slower (days to weeks) but highly targeted and creates immunological memory. Involves T cells (cellular) and B cells (humoral/antibodies).</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Adaptive</div>
+      <div class="card-emoji">🅱️</div>
+      <div class="card-term">B Cells & Antibodies</div>
+      <div class="card-analogy">Like a missile factory — make specialized weapons for each enemy</div>
+      <div class="card-body">B cells differentiate into plasma cells that secrete antibodies (immunoglobulins). Antibodies bind specific antigens → neutralize, agglutinate, or flag for destruction (opsonization).</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">T Cell</div>
+      <div class="card-emoji">🔪</div>
+      <div class="card-term">Cytotoxic T Cells (CD8+)</div>
+      <div class="card-analogy">Like the assassins — directly kill infected cells</div>
+      <div class="card-body">Kill cells infected by viruses or cancer cells. Recognize antigens on MHC class I molecules. Release perforin (punches holes in membrane) and granzymes (trigger apoptosis).</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">T Cell</div>
+      <div class="card-emoji">📢</div>
+      <div class="card-term">Helper T Cells (CD4+)</div>
+      <div class="card-analogy">Like the general — coordinates the whole immune response</div>
+      <div class="card-body">Recognize antigens on MHC class II (on APCs). Release cytokines to activate cytotoxic T cells and B cells. Central to adaptive immunity — HIV destroys these, causing AIDS.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Memory</div>
+      <div class="card-emoji">🧠</div>
+      <div class="card-term">Immunological Memory</div>
+      <div class="card-analogy">Like the Most Wanted list — the immune system never forgets a face</div>
+      <div class="card-body">After infection/vaccination, memory B and T cells persist for years. Second exposure → faster, stronger response (secondary immune response). Basis of vaccines.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Immunity</div>
+      <div class="card-emoji">💉</div>
+      <div class="card-term">Active Immunity</div>
+      <div class="card-analogy">Like training for a fight yourself — your body builds its own defense</div>
+      <div class="card-body">Body produces its own antibodies + memory cells. Natural: after infection. Artificial: after vaccine. Slower to develop but long-lasting (years to lifetime).</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Immunity</div>
+      <div class="card-emoji">🩸</div>
+      <div class="card-term">Passive Immunity</div>
+      <div class="card-analogy">Like borrowing someone else's bulletproof vest — works now but doesn't last</div>
+      <div class="card-body">Antibodies transferred from another source. Natural: maternal antibodies via placenta/breast milk. Artificial: immunoglobulin injection (antivenom, rabies treatment). Fast but temporary — no memory formed.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Lymphatic</div>
+      <div class="card-emoji">🌊</div>
+      <div class="card-term">Lymphatic System</div>
+      <div class="card-analogy">Like the sewer system of the body — drains excess fluid and filters it</div>
+      <div class="card-body">Network of vessels that collect interstitial fluid (lymph) and return it to blood. Lymph nodes filter pathogens. Contains lymphocytes. Spleen, thymus, and tonsils are lymphoid organs.</div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="tag">Lymphatic</div>
+      <div class="card-emoji">🏫</div>
+      <div class="card-term">Thymus</div>
+      <div class="card-analogy">Like a military school — where T cells get trained and selected</div>
+      <div class="card-body">Gland in the chest where immature T cells (thymocytes) mature. Positive selection: T cells that recognize MHC survive. Negative selection: self-reactive T cells are destroyed. Shrinks with age.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-h"><div class="section-title">Diseases of the Immune System</div></div>
+  <div class="disease-grid">
+    <div class="d-card"><div class="d-name">HIV/AIDS</div><div class="d-type">Viral (retrovirus)</div><div class="d-desc">HIV destroys CD4+ Helper T cells. When count drops below 200/µL → AIDS. No immune defense → opportunistic infections (PCP, CMV). Managed with antiretrovirals (ART).</div></div>
+    <div class="d-card"><div class="d-name">Lupus (SLE)</div><div class="d-type">Autoimmune</div><div class="d-desc">Immune system attacks own DNA and tissues. Butterfly rash on face, joint pain, kidney damage. More common in women. "The great imitator" — mimics many diseases.</div></div>
+    <div class="d-card"><div class="d-name">Type 1 Diabetes</div><div class="d-type">Autoimmune</div><div class="d-desc">Immune system destroys pancreatic beta cells → no insulin produced. Requires lifelong insulin therapy. Distinct from Type 2 (insulin resistance, not autoimmune).</div></div>
+    <div class="d-card"><div class="d-name">Anaphylaxis</div><div class="d-type">Hypersensitivity</div><div class="d-desc">Severe allergic reaction. Massive histamine release → vasodilation, airway swelling, drop in blood pressure. Life-threatening. Treat with epinephrine (EpiPen).</div></div>
+    <div class="d-card"><div class="d-name">SCID</div><div class="d-type">Immunodeficiency</div><div class="d-desc">Severe Combined Immunodeficiency — absence of both T and B cells. "Bubble boy disease." Patients highly vulnerable to all infections. Treated with bone marrow transplant.</div></div>
+    <div class="d-card"><div class="d-name">Lymphoma</div><div class="d-type">Cancer</div><div class="d-desc">Cancer of lymphocytes. Hodgkin's (has Reed-Sternberg cells, better prognosis) vs Non-Hodgkin's (many subtypes). Presents as painless swollen lymph nodes.</div></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="section" id="quiz">
+  <div class="section-label">Flash Quiz — all topics</div>
+  <div class="quiz-wrap" id="quiz-wrap">
+    <div id="quiz-score-screen" style="display:none">
+      <div class="score-box">
+        <div class="score-num" id="score-final">—</div>
+        <div class="score-label">correct answers</div>
+        <button class="btn primary" style="margin-top:1.5rem" onclick="startQuiz()">Try again ↺</button>
+      </div>
+    </div>
+    <div id="quiz-main">
+      <div class="quiz-question" id="q-text">Loading…</div>
+      <div class="quiz-options" id="q-options"></div>
+      <div class="quiz-feedback" id="q-feedback"></div>
+      <div class="quiz-nav">
+        <span class="quiz-count" id="q-count"></span>
+        <button class="btn primary" id="q-next" onclick="nextQuestion()" style="display:none">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const allQuestions = [
+  { q: "What cell builds new bone tissue?", opts: ["Osteocyte","Osteoclast","Osteoblast","Chondrocyte"], a: 2, exp: "Osteoblasts synthesize bone matrix. Once trapped inside, they become osteocytes. Osteoclasts BREAK bone down." },
+  { q: "Synovial fluid acts like _____ in a joint.", opts: ["A sponge","Engine oil","A filter","Superglue"], a: 1, exp: "Synovial fluid lubricates cartilage in movable joints, reducing friction — exactly like oil in an engine." },
+  { q: "Which type of muscle is voluntary AND striated?", opts: ["Cardiac","Smooth","Skeletal","All of the above"], a: 2, exp: "Skeletal muscle is both striated (striped) and voluntary (consciously controlled). Cardiac is striated but involuntary." },
+  { q: "Tetanus is caused by which bacterium?", opts: ["Clostridium botulinum","Group A Streptococcus","Clostridium tetani","Staphylococcus aureus"], a: 2, exp: "C. tetani produces a toxin that blocks inhibitory nerve signals → spastic paralysis (lockjaw). C. botulinum causes the OPPOSITE — flaccid paralysis." },
+  { q: "Which skin layer contains hair follicles, blood vessels, and sweat glands?", opts: ["Epidermis","Dermis","Hypodermis","Stratum corneum"], a: 1, exp: "The dermis is the 'infrastructure layer' — it contains all the functional structures. The epidermis is avascular (no blood vessels)." },
+  { q: "Melanocytes produce melanin, which primarily...", opts: ["Moisturizes skin","Absorbs UV radiation to protect DNA","Produces sebum","Provides elasticity"], a: 1, exp: "Melanin's main function is UV protection. Everyone has roughly the same number of melanocytes — skin color depends on how much melanin they produce." },
+  { q: "Arteries vs Veins: which one carries blood AWAY from the heart?", opts: ["Veins","Capillaries","Arteries","Both"], a: 2, exp: "Arteries = Away from heart (high pressure, thick walls). Veins = back to heart (low pressure, have valves). Mnemonic: Arteries = Away." },
+  { q: "The SA node is known as the heart's ___.", opts: ["Valve","Pacemaker","Pump","Lining"], a: 1, exp: "The SA node (sinoatrial node) sets the heart's rhythm by generating electrical impulses. It's the 'fuse box' that controls beat rate." },
+  { q: "Which immune response is faster and more specific?", opts: ["Innate","Adaptive","Inflammatory","Complement"], a: 1, exp: "Wait — trick! The INNATE response is FASTER (minutes). The ADAPTIVE is more SPECIFIC. Read carefully on exams — the question asks for specific, so Adaptive is correct." },
+  { q: "Helper T cells (CD4+) are destroyed by which virus?", opts: ["Influenza","Hepatitis B","HIV","Herpes simplex"], a: 2, exp: "HIV specifically targets CD4+ T cells. Since these cells coordinate the entire adaptive response, losing them collapses immunity → AIDS." },
+  { q: "Passive immunity is characterized by...", opts: ["Long-lasting protection","Memory cell formation","Pre-made antibodies from another source","Slow onset"], a: 2, exp: "Passive immunity = borrowed antibodies. Fast but temporary, no memory cells formed. Example: antivenom, maternal antibodies, immunoglobulin injections." },
+  { q: "Osteoclasts do what to bone?", opts: ["Build it","Store fat in it","Break it down (resorption)","Produce blood cells"], a: 2, exp: "Osteoclasts are the 'demolition crew' — they resorb bone, releasing calcium. This is important for remodeling and calcium homeostasis." },
+  { q: "What is the sliding filament theory about?", opts: ["How bones grow","How skin regenerates","How muscles contract — actin slides over myosin","How nerves transmit signals"], a: 2, exp: "Myosin heads pull actin filaments inward → sarcomere shortens → muscle contracts. Requires ATP and Ca²⁺ ions to expose actin binding sites." },
+  { q: "A 3rd degree burn affects...", opts: ["Epidermis only","Epidermis + dermis","All layers — epidermis, dermis, hypodermis","Only subcutaneous fat"], a: 2, exp: "3rd degree (full thickness) burns destroy all skin layers. They are painless because nerve endings are destroyed. Require skin grafts." },
+  { q: "Cytotoxic T cells (CD8+) kill infected cells by...", opts: ["Releasing antibodies","Releasing perforin and granzymes","Phagocytosis","Releasing histamine"], a: 1, exp: "Cytotoxic T cells punch holes in target cell membranes with perforin, then inject granzymes that trigger apoptosis (programmed cell death)." },
+  { q: "Which lymphoid organ is where T cells mature?", opts: ["Spleen","Lymph nodes","Bone marrow","Thymus"], a: 3, exp: "The thymus is the 'military school' for T cells. They mature, get selected, and leave as functional T cells. The thymus shrinks with age." },
+  { q: "Osteoporosis is caused by...", opts: ["Too many osteoblasts","More osteoclast than osteoblast activity","Viral infection of bone","Bacterial invasion of the periosteum"], a: 1, exp: "In osteoporosis, bone resorption outpaces bone formation. Bones lose density and become fragile. More common in post-menopausal women due to estrogen loss." },
+  { q: "Atherosclerosis is the build-up of ___ inside arteries.", opts: ["Collagen","Calcium and bone","Plaques (cholesterol, fat)","Blood clots only"], a: 2, exp: "Plaques made of cholesterol, fat, and calcium harden and narrow arteries. Can lead to heart attack (coronary) or stroke (cerebral) if they rupture." },
+];
+
+let questions = [], idx = 0, score = 0, answered = false;
+let seen = new Set();
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'quiz') startQuiz();
+}
+
+function toggleCard(el) {
+  const sectionId = el.closest('.section').id;
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) {
+    seen.add(el.querySelector('.card-term').textContent);
+  }
+  updateProgress();
+}
+
+function toggleAll(sectionId) {
+  const cards = document.querySelectorAll(`#${sectionId} .card`);
+  const anyOpen = Array.from(cards).some(c => c.classList.contains('open'));
+  cards.forEach(c => {
+    if (anyOpen) c.classList.remove('open');
+    else { c.classList.add('open'); seen.add(c.querySelector('.card-term').textContent); }
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = document.querySelectorAll('.card').length;
+  const pct = Math.round((seen.size / total) * 100);
+  document.getElementById('prog-label').textContent = `${seen.size} / ${total} seen`;
+  document.getElementById('prog-fill').style.width = pct + '%';
+}
+
+function startQuiz() {
+  questions = [...allQuestions].sort(() => Math.random() - 0.5).slice(0, 10);
+  idx = 0; score = 0;
+  document.getElementById('quiz-score-screen').style.display = 'none';
+  document.getElementById('quiz-main').style.display = 'block';
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+  const q = questions[idx];
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-feedback').textContent = '';
+  document.getElementById('q-next').style.display = 'none';
+  document.getElementById('q-count').textContent = `Question ${idx + 1} of ${questions.length} · Score: ${score}`;
+  const opts = document.getElementById('q-options');
+  opts.innerHTML = '';
+  const shuffled = q.opts.map((o, i) => ({ text: o, orig: i })).sort(() => Math.random() - 0.5);
+  shuffled.forEach(({ text, orig }) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = text;
+    btn.onclick = () => checkAnswer(orig, q.a, q.exp);
+    opts.appendChild(btn);
+  });
+}
+
+function checkAnswer(chosen, correct, exp) {
+  if (answered) return;
+  answered = true;
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(b => { b.disabled = true; });
+  let chosenBtn, correctBtn;
+  const shuffledTexts = Array.from(opts).map(b => b.textContent);
+  // re-find by matching correct option text
+  const correctText = document.getElementById('q-options').querySelectorAll('.quiz-opt')[
+    Array.from(document.getElementById('q-options').querySelectorAll('.quiz-opt')).findIndex(b => {
+      const allQ = questions[idx];
+      return b.textContent === allQ.opts[correct];
+    })
+  ];
+  opts.forEach(b => {
+    if (b.textContent === questions[idx].opts[chosen]) {
+      b.classList.add(chosen === correct ? 'correct' : 'wrong');
+    }
+    if (b.textContent === questions[idx].opts[correct]) {
+      b.classList.add('correct');
+    }
+  });
+  if (chosen === correct) score++;
+  document.getElementById('q-feedback').textContent = exp;
+  document.getElementById('q-next').style.display = 'block';
+  document.getElementById('q-count').textContent = `Question ${idx + 1} of ${questions.length} · Score: ${score}`;
+}
+
+function nextQuestion() {
+  idx++;
+  if (idx >= questions.length) {
+    document.getElementById('quiz-main').style.display = 'none';
+    document.getElementById('quiz-score-screen').style.display = 'block';
+    document.getElementById('score-final').textContent = `${score} / ${questions.length}`;
+  } else {
+    showQuestion();
+  }
+}
+
+startQuiz();
+updateProgress();
+</script>
+</body>
+</html>
